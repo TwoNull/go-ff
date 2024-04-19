@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/twonull/go-ff/oodle"
 )
 
 // FFHeaderMagic and FFPatchHeaderMagic are the magic bytes for regular and patch FastFiles
@@ -59,8 +61,7 @@ func decompressBlocks(reader io.Reader, writer io.Writer) error {
 		case 4, 5:
 			return fmt.Errorf("unimplemented compression type: %d", headerBlock.compressionType)
 		case 6, 7, 12, 13, 14, 15, 16, 17: // Decompress Oodle
-			// Implement OodleSharp.Oodle.Decompress in Go
-			return fmt.Errorf("OodleSharp.Oodle.Decompress not implemented in Go")
+			decompressedData, _ = oodle.Decompress(compressedData, int64(block.decompressedLen))
 		default:
 			return fmt.Errorf("unknown compression type: %d", headerBlock.compressionType)
 		}

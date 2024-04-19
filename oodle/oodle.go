@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"sync"
 	"syscall"
@@ -94,7 +93,6 @@ var (
 	dllName = "oo2core_9_win64.dll"
 	paths   = []string{
 		dllName,
-		getTempDllPath(),
 	}
 )
 
@@ -343,8 +341,4 @@ func resolveDllPath() (string, error) {
 	}
 
 	return "", fmt.Errorf("`%s` is not resolve", dllName)
-}
-
-func getTempDllPath() string {
-	return filepath.Join(os.TempDir(), "go-oodle", dllName)
 }
