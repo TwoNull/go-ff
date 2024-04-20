@@ -22,3 +22,6 @@ go.work
 
 # Wakatime
 .wakatime-project
+
+# Test
+test/
