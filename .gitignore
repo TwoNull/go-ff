@@ -27,4 +27,7 @@ go.work
 test/
 
 # Raw Uncompressed FF
-file
+zone
+
+# MacOS
+.DS_Store

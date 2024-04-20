@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -49,15 +50,19 @@ func (ad *AssetData) AddFiles(extension []byte, data []byte) {
 		assetSize := getDword(data, startOfNameOffset-8, true)
 		assetName := getString(data, startOfNameOffset, endOfNameOffset)
 
-		startOfContents := endOfNameOffset + 1
-		endOfContents := findByte(data, 0x00, startOfContents)
-		contents := getString(data, startOfContents, endOfContents)
+		startOfContents := endOfNameOffset + 9
+		contents := data[startOfContents : startOfContents+assetSize]
+
+		out, err := decompressZlib(contents)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		ad.files = append(ad.files, FileData{
 			name:           assetName,
 			nameOffset:     startOfNameOffset,
-			contents:       contents,
-			size:           len(contents),
+			contents:       string(out),
+			size:           len(out),
 			originalSize:   assetSize,
 			contentsOffset: startOfContents,
 		})

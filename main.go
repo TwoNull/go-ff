@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"log"
+	"os"
 )
 
 func main() {
@@ -29,7 +30,9 @@ func main() {
 
 	ParseZoneData(decompressedData)
 
+	os.WriteFile("zone", decompressedData, 0644)
+
 	ad := ParseAssetsData(decompressedData)
 
-	ad.SaveAllFiles("./test/nuked")
+	ad.SaveAllFiles("./test/mp_nuked")
 }
