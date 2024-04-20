@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"compress/zlib"
+	"unicode"
 )
 
 func decompressZlib(data []byte) ([]byte, error) {
@@ -20,4 +21,13 @@ func decompressZlib(data []byte) ([]byte, error) {
 	}
 
 	return decompressed.Bytes(), nil
+}
+
+func isASCII(b []byte) bool {
+	for i := 0; i < len(b); i++ {
+		if b[i] > unicode.MaxASCII {
+			return false
+		}
+	}
+	return true
 }

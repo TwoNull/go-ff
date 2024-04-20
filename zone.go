@@ -1,7 +1,5 @@
 package main
 
-import "log"
-
 type ZoneData struct {
 	g_streamOutSize   int
 	g_streamBlockSize [9]int
@@ -48,8 +46,6 @@ func ParseZoneData(decompressedData []byte) *ZoneData {
 	} else {
 		zd.assetsListOffset = listStringStrEndOffset
 	}
-
-	log.Println(zd.assetsListOffset)
 
 	// Getting the assets' count from assets list
 	for i := 0; i < zd.assetsCount; i++ {

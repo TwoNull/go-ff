@@ -1,19 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
-)
-
-var (
-	gscFormat = []byte{'.', 'g', 's', 'c', 0}
-	gsxFormat = []byte{'.', 'g', 's', 'x', 0}
-	rmbFormat = []byte{'.', 'r', 'm', 'b', 0}
-	cfgFormat = []byte{'.', 'c', 'f', 'g', 0}
-	defFormat = []byte{'.', 'd', 'e', 'f', 0}
 )
 
 type AssetData struct {
@@ -32,42 +25,48 @@ type FileData struct {
 func ParseAssetsData(decompressedData []byte) *AssetData {
 	ad := &AssetData{}
 
-	ad.AddFiles(gsxFormat, decompressedData)
-	ad.AddFiles(gscFormat, decompressedData)
-	ad.AddFiles(rmbFormat, decompressedData)
-	ad.AddFiles(defFormat, decompressedData)
-	ad.AddFiles(cfgFormat, decompressedData)
+	ad.GetRawFiles(decompressedData)
 
 	return ad
 }
 
-func (ad *AssetData) AddFiles(extension []byte, data []byte) {
-	offset := findBytes(data, extension, 0)
-
-	for offset != -1 {
-		startOfNameOffset := findByteBackward(data, 0xFF, offset+1) + 1
-		endOfNameOffset := findByte(data, 0x00, offset+1)
-		assetSize := getDword(data, startOfNameOffset-8)
-		assetName := string(data[startOfNameOffset:endOfNameOffset])
-
-		startOfContents := endOfNameOffset + 9
-		contents := data[startOfContents : startOfContents+assetSize]
-
-		out, err := decompressZlib(contents)
-		if err != nil {
-			log.Fatal(err)
+func (ad *AssetData) GetRawFiles(data []byte) {
+	index := 0
+	for index < len(data) {
+		sep := bytes.Index(data[index:], []byte{0xFF, 0xFF, 0xFF, 0xFF}) + index
+		if sep < index {
+			break
 		}
+		if bytes.Equal(data[sep+8:sep+12], []byte{0xFF, 0xFF, 0xFF, 0xFF}) {
+			endOfName := bytes.IndexByte(data[sep+12:], 0x0) + sep + 12
+			if endOfName < (sep + 12) {
+				break
+			}
+			if data[endOfName+9] == 0x78 {
+				if isASCII(data[sep+12 : endOfName]) {
+					assetSize := getDword(data, sep+4)
+					assetName := string(data[sep+12 : endOfName])
+					startOfContents := endOfName + 9
 
-		ad.files = append(ad.files, FileData{
-			name:           assetName,
-			nameOffset:     startOfNameOffset,
-			contents:       string(out[:len(out)-1]),
-			size:           len(out) - 1,
-			originalSize:   assetSize,
-			contentsOffset: startOfContents,
-		})
+					contents := data[startOfContents : startOfContents+assetSize]
 
-		offset = findBytes(data, extension, offset+1)
+					out, err := decompressZlib(contents)
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					ad.files = append(ad.files, FileData{
+						name:           assetName,
+						nameOffset:     sep + 12,
+						contents:       string(out[:len(out)-1]),
+						size:           len(out) - 1,
+						originalSize:   assetSize,
+						contentsOffset: startOfContents,
+					})
+				}
+			}
+		}
+		index = sep + 4
 	}
 }
 
