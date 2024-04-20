@@ -46,20 +46,11 @@ func findByteBackward(bytes []byte, seekByte byte, offset int) int {
 	return -1
 }
 
-func getDword(allBytes []byte, startOffset int, reverseBytes bool) int {
+func getDword(bytes []byte, startOffset int) int {
 	tableIndexBytes := make([]byte, 4)
-	copy(tableIndexBytes, allBytes[startOffset:startOffset+4])
-
-	if !reverseBytes {
-		reverse(tableIndexBytes)
-	}
+	copy(tableIndexBytes, bytes[startOffset:startOffset+4])
 
 	return int(binary.LittleEndian.Uint32(tableIndexBytes))
-}
-
-func getString(bytes []byte, offset, endOffset int) string {
-	byteSelection := bytes[offset:endOffset]
-	return string(byteSelection)
 }
 
 func reverse(bytes []byte) {
@@ -67,64 +58,3 @@ func reverse(bytes []byte) {
 		bytes[i], bytes[j] = bytes[j], bytes[i]
 	}
 }
-
-/*func removeBytes(bytes []byte, startOffset, endOffset int) []byte {
-	result := make([]byte, 0, len(bytes)-(endOffset-startOffset))
-	result = append(result, bytes[:startOffset]...)
-	result = append(result, bytes[endOffset:]...)
-	return result
-}
-
-func addBytes(bytes, add []byte, startOffset int) []byte {
-	newLength := len(bytes) + len(add)
-	result := make([]byte, newLength)
-	copy(result, bytes[:startOffset])
-	copy(result[startOffset:], add)
-	copy(result[startOffset+len(add):], bytes[startOffset:])
-	return result
-}
-
-func replaceBytes(bytes []byte, offset int, replacement []byte, finishWithNullByte bool) []byte {
-	copy(bytes[offset:], replacement)
-	if finishWithNullByte {
-		bytes[offset+len(replacement)] = 0
-	}
-	return bytes
-}
-
-func getBytes(bytes []byte, startOffset, endOffset int) []byte {
-	end := len(bytes)
-	if endOffset != -1 {
-		end = endOffset
-	}
-	return bytes[startOffset:end]
-}
-
-func setBytes(bytes []byte, startOffset, length int, setByte byte) []byte {
-	for i := startOffset; i < startOffset+length; i++ {
-		bytes[i] = setByte
-	}
-	return bytes
-}
-
-func countBytes(bytes, seekBytes []byte, offset, endOffset int) int {
-	endPos := len(bytes)
-	if endOffset != -1 {
-		endPos = endOffset
-	}
-	currentByte := 0
-	count := 0
-	for i := offset; i < endPos; i++ {
-		if bytes[i] == seekBytes[currentByte] {
-			currentByte++
-		} else {
-			currentByte = 0
-		}
-
-		if currentByte >= len(seekBytes) {
-			count++
-			currentByte = 0
-		}
-	}
-	return count
-}*/

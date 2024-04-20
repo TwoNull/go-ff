@@ -47,8 +47,8 @@ func (ad *AssetData) AddFiles(extension []byte, data []byte) {
 	for offset != -1 {
 		startOfNameOffset := findByteBackward(data, 0xFF, offset+1) + 1
 		endOfNameOffset := findByte(data, 0x00, offset+1)
-		assetSize := getDword(data, startOfNameOffset-8, true)
-		assetName := getString(data, startOfNameOffset, endOfNameOffset)
+		assetSize := getDword(data, startOfNameOffset-8)
+		assetName := string(data[startOfNameOffset:endOfNameOffset])
 
 		startOfContents := endOfNameOffset + 9
 		contents := data[startOfContents : startOfContents+assetSize]
@@ -61,8 +61,8 @@ func (ad *AssetData) AddFiles(extension []byte, data []byte) {
 		ad.files = append(ad.files, FileData{
 			name:           assetName,
 			nameOffset:     startOfNameOffset,
-			contents:       string(out),
-			size:           len(out),
+			contents:       string(out[:len(out)-1]),
+			size:           len(out) - 1,
 			originalSize:   assetSize,
 			contentsOffset: startOfContents,
 		})
