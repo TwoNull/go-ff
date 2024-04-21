@@ -84,7 +84,7 @@ func (ad *AssetData) SaveFile(filePath string, index int) {
 	if _, err := os.Stat(fileDir); os.IsNotExist(err) {
 		err := os.MkdirAll(fileDir, 0755)
 		if err != nil {
-			fmt.Println("Error creating directory:", err)
+			fmt.Println("error creating directory", err)
 			return
 		}
 	}
@@ -92,14 +92,14 @@ func (ad *AssetData) SaveFile(filePath string, index int) {
 	if _, err := os.Stat(filePath); err == nil {
 		err := os.Remove(filePath)
 		if err != nil {
-			fmt.Println("Error deleting file:", err)
+			fmt.Println("error deleting file", err)
 			return
 		}
 	}
 
 	err := os.WriteFile(filePath, []byte(ad.files[index].contents), 0644)
 	if err != nil {
-		fmt.Println("Error writing file:", err)
+		fmt.Println("error writing file", err)
 		return
 	}
 }
