@@ -1,2 +1,2 @@
 # go-ff
- FastFile (.ff) decompression tool for Call of Duty
+ FastFile (.ff) extractor tool for various Call of Duty titles. Currently supports Rawfile extract for games using Zlib compression.
